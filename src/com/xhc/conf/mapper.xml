@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace： 接口的包名+接口名 -->
+<mapper namespace="com.xhc.mapper.IMapper">
+
+	<insert id="insertIntoHouseHold" parameterType="houseHoldBean">
+		insert into household (name,id,sex,nation,pc,culture,faith,gridcode,tel,difficulty,disableid,isresident,homeadd,workadd,descmsg,age) values (
+		#{name},#{id},#{sex},#{nation},#{pc},#{culture},#{faith},#{gridCode},
+		#{tel},#{difficulty},#{disableId},#{isResident},#{homeAdd},#{workAdd},#{descmsg},#{age}
+		) on conflict (id) do update set id = #{id} ;
+	</insert>
+	<insert id="insertIntoFamily" parameterType="list">
+		<foreach collection="list" item="item">
+			insert into family (name,relation,nation,pc,culture,id,workadd,sex,isresident,tel,difficulty,disableid,houseid,updatetime,age)
+			 values (#{item.name},#{item.relation},#{item.nation},#{item.pc},#{item.culture},#{item.id},
+			#{item.workAdd},#{item.sex},#{item.isResident},#{item.tel},#{item.difficulty},
+			#{item.disableId},#{item.houseId},now(),#{item.age}) on conflict (id,houseId) do update set updatetime=now();
+		</foreach>
+	</insert>
+	<insert id="insertIntoHouseState" parameterType="houseState">
+		insert into housestate (homestead,coverarea,housearea,houseid) values (#{homestead},#{coverArea},#{houseArea},#{houseid});
+	</insert>
+	<insert id="insertIntoPicture" parameterType="list">
+		<foreach collection="list" item="item">
+			insert into picture (msid,base,houseid) values(#{item.msid},#{item.base},#{item.houseid});
+		</foreach>
+
+	</insert>
+	<delete id="deleteHouseHold">
+		delete from household;
+	</delete>
+	<delete id="deleteFamily">
+		delete from family;
+	</delete>
+	<delete id="deleteState">
+		delete from housestate;
+	</delete>
+	<delete id="deletePicture">
+		delete from picture;
+	</delete>
+
+	<select id="queryOnehold" resultType="houseHoldBean">
+		select * from household where id like CONCAT('%',#{id},'%') and name=#{username}
+	</select>
+	<select id="queryOneFamily" parameterType="String" resultType="familyBean">
+		select * from family where houseid=#{id}
+	</select>
+	<select id="queryOneState" parameterType="String" resultType="houseState">
+		select * from housestate where houseid=#{id}
+	</select>
+	<select id="queryOnePicture" parameterType="String" resultType="pictureBean">
+		select * from picture where houseid=#{id}
+	</select>
+
+<!--	复杂条件查询 -->
+	<select id="queryMultiHold" resultType="houseHoldBean">
+		select * from houseHold where
+		<if test='inputMap.sex == "男"'>
+			sex = '0' and
+		</if>
+		<if test='inputMap.sex == "女"'>
+			sex = '1' and
+		</if>
+
+		<if test='inputMap.culture != ""'>
+			culture in
+			<foreach collection="inputMap.culture" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			 and
+		</if>
+
+		<if test="inputMap.age.contains('0#')">
+			age &gt; cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('1#')">
+			age &lt; cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('2#')">
+			age &gt;= cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('3#')">
+			age &lt;= cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('4#')">
+			age = cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test='inputMap.disable == "是" '>
+			disableid &lt;&gt; '无' and
+		</if>
+		<if test='inputMap.disable == "否" '>
+			disableid = '无' and
+		</if>
+		<if test='inputMap.resident == "是"'>
+			isresident = '0' and
+		</if>
+		<if test='inputMap.resident == "否"'>
+			isresident = '1' and
+		</if>
+
+		<if test='inputMap.job == "否"'>
+			workadd = '无' and
+		</if>
+		<if test='inputMap.job == "是"'>
+			workadd &lt;&gt; '无' and
+		</if>
+		name &lt;&gt; ''
+
+	</select>
+
+	<select id="queryMultiFamily" resultType="familyBean">
+		select * from family where
+		<if test='inputMap.sex == "男"'>
+			sex = '0' and
+		</if>
+		<if test='inputMap.sex == "女"'>
+			sex = '1' and
+		</if>
+		<if test='inputMap.culture != ""'>
+			culture in
+			<foreach collection="inputMap.culture" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			and
+		</if>
+		<if test="inputMap.age.contains('0#')">
+			age &gt; cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('1#')">
+			age &lt; cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('2#')">
+			age &gt;= cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('3#')">
+			age &lt;= cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test="inputMap.age.contains('4#')">
+			age = cast((SELECT regexp_split_to_table(#{inputMap.age}, E'#') limit 1 offset 1) as integer) and
+		</if>
+		<if test='inputMap.disable == "是" '>
+			disableid &lt;&gt; '无' and
+		</if>
+		<if test='inputMap.disable == "否" '>
+			disableid = '无' and
+		</if>
+		<if test='inputMap.resident == "是"'>
+			isresident = '0' and
+		</if>
+		<if test='inputMap.resident == "否"'>
+			isresident = '1' and
+		</if>
+
+		<if test='inputMap.job == "否"'>
+			workadd = '无' and
+		</if>
+		<if test='inputMap.job == "是"'>
+			workadd &lt;&gt; '无' and
+		</if>
+		name &lt;&gt; ''
+
+	</select>
+
+</mapper>

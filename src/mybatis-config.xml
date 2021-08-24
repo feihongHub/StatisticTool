@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- default="development"表示 development是默认的环境-->
+    <typeAliases>
+        <typeAlias type="com.xhc.entity.HouseHoldBean" alias="houseHoldBean" />
+        <typeAlias type="com.xhc.entity.FamilyBean" alias="familyBean" />
+        <typeAlias type="com.xhc.entity.HouseStateBean" alias="houseState" />
+        <typeAlias type="com.xhc.entity.PictureBean" alias="pictureBean" />
+    </typeAliases>
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <!-- 数据源类型：POOLED（池） -->
+            <dataSource type="POOLED">
+                <!-- 数据库连接的一些参数值 -->
+                <property name="driver" value="org.postgresql.Driver"/>
+                <property name="url" value="jdbc:postgresql://localhost:5432/multistorm"/>
+                <property name="username" value="postgres"/>
+                <property name="password" value="postgres"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!-- 映射的xml文件 -->
+    <mappers>
+        <mapper resource="com/xhc/conf/mapper.xml"/>
+    </mappers>
+</configuration>
