@@ -6,7 +6,7 @@ import javax.swing.*;
 public class StartMonitor {
     public static void main(String[] args) {
         //1. 启动界面
-        ViewPage.common(new JFrame("测试"));
+        ViewPage.common(new JFrame("居民信息管理系统"));
     }
 
 }
